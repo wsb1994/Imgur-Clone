@@ -34,7 +34,7 @@ class image:
         else:
             return False
     def select_local_image(self, filename):
-        with open("food.jpeg", "rb") as image2string: 
+        with open(filename, "rb") as image2string: 
             converted_string = base64.b64encode(image2string.read())
             self.image = converted_string
     def toJSON(self):

@@ -42,8 +42,6 @@ def upload_image():
         user = loads(user)
         user = user[0]
     except Exception as e:
-        return make_response('Database unavailability', 401, {'WWW-Authenticate': 'Basic realm="login Required"'}) 
-    except Exception as e:
         print(e)
         return make_response('Verification Failure', 401, {'WWW-Authenticate': 'Basic realm="login Required"'})
     images = user['images']
@@ -57,27 +55,7 @@ def upload_image():
     return {'success': 1}
 
 
-@user_info.route('/user_info/<user>', methods=['GET'])
-def pub_info(user):
-    client = pymongo.MongoClient(connection_string)
-    mydb = client['clonegur']
-    application_users = mydb['users']
-
-    try:
-        user = dumps(application_users.find({"username": user}))
-        user_info = loads(user)
-    except Exception as e:
-        user = {'error': e}
-    # TODO verify user info exists
-    user_info = user_info[0]
-
-    user_info.pop("password")
-    user_info.pop("_id")
-
-    return dumps(user_info)
-
-
-@user_info.route('/upload_avatar/', methods=['POST'])
+@user_info.route('/upload_avatar', methods=['POST'])
 def upload_avatar():
     encoded = request.headers.get('jwt')
     image = request.headers.get('image')
@@ -99,3 +77,24 @@ def upload_avatar():
     application_users.update_one(filter, updated)
 
     return {'success': 1}
+
+@user_info.route('/user_info/<user>', methods=['GET'])
+def pub_info(user):
+    client = pymongo.MongoClient(connection_string)
+    mydb = client['clonegur']
+    application_users = mydb['users']
+
+    try:
+        user = dumps(application_users.find({"username": user}))
+        user_info = loads(user)
+        user_info = user_info[0]
+        user_info.pop("password")
+        user_info.pop("_id")
+    except Exception as e:
+        user = {'error': e}
+    # TODO verify user info exists
+
+    
+
+    return jsonify(user_info)
+
